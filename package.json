@@ -2,7 +2,7 @@
   "name": "steemwinner",
   "description": "",
   "dependencies": {
-    "next": "^2.4.7",
+    "next": "^3.0.1-beta.18",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   },
