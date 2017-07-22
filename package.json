@@ -2,6 +2,7 @@
   "name": "steemwinner",
   "description": "",
   "dependencies": {
+    "gh-pages": "^1.0.0",
     "material-ui": "^1.0.0-alpha.22",
     "next": "^3.0.1-beta.18",
     "react": "^15.6.1",
