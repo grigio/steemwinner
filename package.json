@@ -10,6 +10,7 @@
     "steem": "^0.6.1"
   },
   "scripts": {
+    "publish": "next build && next export && surge -d steemwinner.surge.sh -p out/",
     "dev": "next",
     "build": "next build",
     "start": "next start"
