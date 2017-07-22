@@ -57,6 +57,7 @@ export default class SelectUrlStep extends React.Component {
   state = {
     steemitUrl:
       "https://steemit.com/italiano/@luigi-tecnologo/byteball-la-criptovaluta-veloce-e-con-smart-contract-facili",
+    loading: false,
     totalComments: null,
     shuffledUsers: [],
   };
@@ -71,7 +72,8 @@ export default class SelectUrlStep extends React.Component {
   }
 
   handleClick(ev) {
-    const { steemitUrl } = this.state;
+    const { steemitUrl, loading } = this.state;
+    this.setState({loading: true})
     console.log("ev ", steemitUrl);
     const comments = []
     getData(getRoot(steemitUrl), comments)
@@ -93,7 +95,8 @@ export default class SelectUrlStep extends React.Component {
 
       this.setState({
         totalComments: totalComments,
-        shuffledUsers: shuffledUsers
+        shuffledUsers: shuffledUsers,
+        loading: false
       })
 
     }, 5000) // timeout
@@ -101,7 +104,7 @@ export default class SelectUrlStep extends React.Component {
 
   render() {
     const classes = styleSheet;
-    const { totalComments, shuffledUsers, steemitUrl } = this.state;
+    const { totalComments, shuffledUsers, steemitUrl, loading } = this.state;
     return (
       <div className={classes.container}>
         <TextField
@@ -118,16 +121,20 @@ export default class SelectUrlStep extends React.Component {
           className={classes.button}
           onClick={event => this.handleClick(event)}
         >
-          Get Winner!
+          { !loading ? 'Get Winner!!' : 'loading...'}
         </Button>
-        <p>
-          {totalComments}
-          {shuffledUsers.map( user => (
-            <p>
-              {user}
-            </p>
+        <div>
+          {totalComments ? (
+            <span>found {totalComments} comments,</span>
+          ): null}
+
+          {shuffledUsers.map( (user, index) => (
+            <div key={index} >
+              {index + 1} - 
+                <span style={{fontWeight: (index === 0) ? 'bold' : 'normal'}}>{user}</span>
+            </div>
           ))}
-        </p>
+        </div>
       </div>
     );
   }
