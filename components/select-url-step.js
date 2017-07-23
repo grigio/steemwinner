@@ -4,6 +4,13 @@ import InputLabel from "material-ui/Input/InputLabel";
 import Button from "material-ui/Button";
 import FormControl from "material-ui/Form/FormControl";
 import TextField from "material-ui/TextField";
+import CircularProgress from "material-ui/Progress";
+import Autorenew from "material-ui-icons/Autorenew";
+import Grid from "material-ui/Grid";
+import List, {
+  ListItem,
+  ListItemText,
+} from 'material-ui/List';
 
 import PropTypes from "prop-types";
 import { withStyles, createStyleSheet } from "material-ui/styles";
@@ -15,11 +22,22 @@ const styleSheet = createStyleSheet("TextFields", theme => ({
     display: "flex",
     flexWrap: "wrap"
   },
-  button: {},
+  button: {
+    marginTop: "17px"
+  },
+  progress: {
+    // margin: `0 ${theme.spacing.unit * 2}px`,
+  },
+  grid: {
+    direction: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100px"
+  },
   textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    width: 200
+    // marginLeft: theme.spacing.unit,
+    // marginRight: theme.spacing.unit,
+    // width: 200
   }
 }));
 
@@ -32,7 +50,7 @@ function getData(root, items) {
         body: el.body,
         created: el.created,
         permlink: el.permlink
-      })
+      });
       if (el.children > 0) {
         getData(el, items);
       } else {
@@ -43,23 +61,23 @@ function getData(root, items) {
 }
 
 // return root {author, permLink}
-function getRoot(steemUrl){
-  const tokens = steemUrl.split('/')
-  const permLink = tokens.pop()      // last piece
-  const user = tokens.pop().slice(1) // remove @
+function getRoot(steemUrl) {
+  const tokens = steemUrl.split("/");
+  const permLink = tokens.pop(); // last piece
+  const user = tokens.pop().slice(1); // remove @
   return {
     author: user,
     permlink: permLink
-  }
+  };
 }
 
-export default class SelectUrlStep extends React.Component {
+class SelectUrlStep extends React.Component {
   state = {
-    steemitUrl:
-      "https://steemit.com/italiano/@luigi-tecnologo/byteball-la-criptovaluta-veloce-e-con-smart-contract-facili",
+    steemitUrl: '',
+      // "https://steemit.com/italiano/@luigi-tecnologo/byteball-la-criptovaluta-veloce-e-con-smart-contract-facili",
     loading: false,
     totalComments: null,
-    shuffledUsers: [],
+    shuffledUsers: []
   };
 
   constructor(props) {
@@ -67,75 +85,81 @@ export default class SelectUrlStep extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleChange() {
-    console.log("a ", this);
-  }
-
   handleClick(ev) {
     const { steemitUrl, loading } = this.state;
-    this.setState({loading: true})
+    this.setState({ loading: true });
     console.log("ev ", steemitUrl);
-    const comments = []
-    getData(getRoot(steemitUrl), comments)
+    const comments = [];
+    getData(getRoot(steemitUrl), comments);
     setTimeout(() => {
-
-      const totalComments = comments.length
+      const totalComments = comments.length;
 
       // unique distinct users, TODO: filter liked
-      const users = new Map()
-      comments.forEach(el => users.set(el.author))
-      const uniqUsers = Array.from(users.keys())
-      console.log('U ', uniqUsers)
+      const users = new Map();
+      comments.forEach(el => users.set(el.author));
+      const uniqUsers = Array.from(users.keys());
+      console.log("U ", uniqUsers, totalComments);
 
       // shuffle
       const shuffledUsers = uniqUsers.sort(() => Math.random() - 0.5);
 
       // console.log('COMM1 ', JSON.stringify(comments))
-      console.log('C ', shuffledUsers)
+      console.log("C ", shuffledUsers);
 
       this.setState({
         totalComments: totalComments,
         shuffledUsers: shuffledUsers,
         loading: false
-      })
-
-    }, 5000) // timeout
+      });
+    }, 5000); // timeout
   }
 
   render() {
-    const classes = styleSheet;
+    const { classes } = this.props;
     const { totalComments, shuffledUsers, steemitUrl, loading } = this.state;
     return (
       <div className={classes.container}>
-        <TextField
-          id="steemitUrl"
-          label="Steemit Post URL"
-          className={classes.textField}
-          value={steemitUrl}
-          onChange={event => this.setState({ steemitUrl: event.target.value })}
-          margin="normal"
-        />
-        <Button
-          raised
-          color="primary"
-          className={classes.button}
-          onClick={event => this.handleClick(event)}
-        >
-          { !loading ? 'Get Winner!!' : 'loading...'}
-        </Button>
-        <div>
-          {totalComments ? (
-            <span>found {totalComments} comments,</span>
-          ): null}
+        <Grid container className={classes.grid}>
+          <Grid item sm={9}>
+            <TextField
+              id="steemitUrl"
+              label="Steemit Post URL"
+              fullWidth={true}
+              className={classes.textField}
+              value={steemitUrl}
+              onChange={event =>
+                this.setState({ steemitUrl: event.target.value })}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item sm={3}>
+            <Button
+              raised
+              disabled={loading || steemitUrl.length === 0}
+              color="primary"
+              className={classes.button}
+              onClick={event => this.handleClick(event)}
+            >
+              {!loading
+                ? "Get Winner!!"
+                : <Autorenew className={classes.progress} />}
+            </Button>
+          </Grid>
+        </Grid>
 
-          {shuffledUsers.map( (user, index) => (
-            <div key={index} >
-              {index + 1} - 
-                <span style={{fontWeight: (index === 0) ? 'bold' : 'normal'}}>{user}</span>
-            </div>
-          ))}
+        <div>
+
+          <List>
+            {shuffledUsers.map((user, index) =>
+              <ListItem key={index} button>
+                <ListItemText primary={index+1 +" - "+user} />
+              </ListItem>
+            )}
+          </List>
         </div>
       </div>
     );
   }
 }
+
+export default withStyles(styleSheet)(SelectUrlStep);

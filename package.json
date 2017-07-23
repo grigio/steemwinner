@@ -3,10 +3,12 @@
   "description": "",
   "dependencies": {
     "material-ui": "^1.0.0-alpha.22",
+    "material-ui-icons": "^1.0.0-alpha.19",
     "next": "^3.0.1-beta.18",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "steem": "^0.6.1"
+    "steem": "^0.6.1",
+    "typeface-roboto": "0.0.31"
   },
   "scripts": {
     "publish": "next build && next export && surge -d steemwinner.surge.sh -p out/",
