@@ -7,10 +7,7 @@ import TextField from "material-ui/TextField";
 import CircularProgress from "material-ui/Progress";
 import Autorenew from "material-ui-icons/Autorenew";
 import Grid from "material-ui/Grid";
-import List, {
-  ListItem,
-  ListItemText,
-} from 'material-ui/List';
+import List, { ListItem, ListItemText } from "material-ui/List";
 
 import PropTypes from "prop-types";
 import { withStyles, createStyleSheet } from "material-ui/styles";
@@ -73,8 +70,8 @@ function getRoot(steemUrl) {
 
 class SelectUrlStep extends React.Component {
   state = {
-    steemitUrl: '',
-      // "https://steemit.com/italiano/@luigi-tecnologo/byteball-la-criptovaluta-veloce-e-con-smart-contract-facili",
+    steemitUrl: null,
+      // "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
     loading: false,
     totalComments: null,
     shuffledUsers: []
@@ -89,29 +86,39 @@ class SelectUrlStep extends React.Component {
     const { steemitUrl, loading } = this.state;
     this.setState({ loading: true });
     console.log("ev ", steemitUrl);
-    const comments = [];
-    getData(getRoot(steemitUrl), comments);
-    setTimeout(() => {
-      const totalComments = comments.length;
 
-      // unique distinct users, TODO: filter liked
-      const users = new Map();
-      comments.forEach(el => users.set(el.author));
-      const uniqUsers = Array.from(users.keys());
-      console.log("U ", uniqUsers, totalComments);
+    const rootPost = getRoot(steemitUrl);
 
-      // shuffle
-      const shuffledUsers = uniqUsers.sort(() => Math.random() - 0.5);
+    steem.api.getContent(rootPost.author, rootPost.permlink).then(post => {
+      const voters = post.active_votes.map(item => item.voter);
+      //console.log(voters)
 
-      // console.log('COMM1 ', JSON.stringify(comments))
-      console.log("C ", shuffledUsers);
+      const comments = [];
+      getData(rootPost, comments);
+      setTimeout(() => {
+        const totalComments = comments.length;
 
-      this.setState({
-        totalComments: totalComments,
-        shuffledUsers: shuffledUsers,
-        loading: false
-      });
-    }, 5000); // timeout
+        // unique distinct users, TODO: filter liked
+        const users = new Map();
+        comments.forEach(el => users.set(el.author, {voter: voters.includes(el.author) }));
+        const uniqUsers = [];
+        users.forEach( (v,k) => uniqUsers.push({name:k, voter:v.voter}) )
+
+        // console.log("U ", uniqUsers, totalComments);
+
+        // shuffle
+        const shuffledUsers = uniqUsers.sort(() => Math.random() - 0.5);
+
+        // console.log('COMM1 ', JSON.stringify(comments))
+        console.log("C ", shuffledUsers, users);
+
+        this.setState({
+          totalComments: totalComments,
+          shuffledUsers: shuffledUsers,
+          loading: false
+        });
+      }, 5000); // timeout
+    });
   }
 
   render() {
@@ -148,11 +155,11 @@ class SelectUrlStep extends React.Component {
         </Grid>
 
         <div>
-
           <List>
             {shuffledUsers.map((user, index) =>
-              <ListItem key={index} button>
-                <ListItemText primary={index+1 +" - "+user} />
+              <ListItem key={index.name} button>
+                <ListItemText primary={index + 1 + " - " + user.name } />
+                {user.voter ? '(voted)': ''}
               </ListItem>
             )}
           </List>
