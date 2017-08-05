@@ -70,8 +70,8 @@ function getRoot(steemUrl) {
 
 class SelectUrlStep extends React.Component {
   state = {
-    steemitUrl: '',
-      // "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
+    steemitUrl: 
+      "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
     loading: false,
     totalComments: null,
     shuffledUsers: []
