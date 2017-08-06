@@ -34,7 +34,8 @@ class App extends React.Component {
               <Typography type="display2" gutterBottom>
                 SteemWinner
               </Typography>
-              <img src="/static/steemwinner.svg" alt="SteemWinner" />              
+              <img style={{marginBottom:'45px', width:'80%'}}
+                src="https://steemitimages.com/0x0/https://steemitimages.com/DQmSVzU4aQ9tB8gxwLyq4VaYFsywooPWJkeVqYkzoTsZHhK/steem-winner-promo.png" alt="SteemWinner" />              
             </Grid>
             <Typography type="headline" gutterBottom>
               Pick randomly one or more winners from the people who commented on
