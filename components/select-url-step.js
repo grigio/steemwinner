@@ -8,6 +8,7 @@ import CircularProgress from "material-ui/Progress";
 import Autorenew from "material-ui-icons/Autorenew";
 import Grid from "material-ui/Grid";
 import List, { ListItem, ListItemText } from "material-ui/List";
+import MailIcon from 'material-ui-icons/Mail';
 
 import PropTypes from "prop-types";
 import { withStyles, createStyleSheet } from "material-ui/styles";
@@ -30,6 +31,10 @@ const styleSheet = createStyleSheet("TextFields", theme => ({
     justifyContent: "center",
     alignItems: "center",
     height: "100px"
+  },
+  tag: {
+    margin: '1px',
+    fontWeight: 500
   },
   textField: {
     // marginLeft: theme.spacing.unit,
@@ -70,8 +75,10 @@ function getRoot(steemUrl) {
 
 class SelectUrlStep extends React.Component {
   state = {
-    steemitUrl: 
-      "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
+    // steemitUrl:
+    //   'https://steemit.com/stats/@slorunner/global-stats-7-8-aug-global-hashtag-comment-and-post-rankings',
+    steemitUrl:
+    "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
     loading: false,
     totalComments: null,
     shuffledUsers: []
@@ -98,11 +105,32 @@ class SelectUrlStep extends React.Component {
       setTimeout(() => {
         const totalComments = comments.length;
 
-        // unique distinct users, TODO: filter liked
+        // TODO: filter liked option
         const users = new Map();
-        comments.forEach(el => users.set(el.author, {voter: voters.includes(el.author) }));
+        comments.forEach(el => {
+          // hashtag with accent letters regex
+          const userTags = new Set(el.body.match(/\B#\w*[a-zA-Z\u00C0-\u00FF]+\w*/gi));
+          users.set(el.author, {
+            voter: voters.includes(el.author),
+            tags: userTags
+          });
+        });
         const uniqUsers = [];
-        users.forEach( (v,k) => uniqUsers.push({name:k, voter:v.voter}) )
+        const globalTags = {} // key num
+
+        users.forEach((v, k) => {
+          const tagsArray = Array.from(v.tags).sort((a, b) => a > b);
+          uniqUsers.push({
+            name: k,
+            voter: v.voter,
+            tags: tagsArray
+          });
+          tagsArray.forEach(tag => {
+            tag = tag.toLowerCase()
+            // pushOrInsertTag
+            globalTags[tag] ? globalTags[tag] += 1 : globalTags[tag] = 1
+          });
+        });
 
         // console.log("U ", uniqUsers, totalComments);
 
@@ -113,6 +141,7 @@ class SelectUrlStep extends React.Component {
         console.log("C ", shuffledUsers, users);
 
         this.setState({
+          globalTags: globalTags,
           totalComments: totalComments,
           shuffledUsers: shuffledUsers,
           loading: false
@@ -123,7 +152,7 @@ class SelectUrlStep extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { totalComments, shuffledUsers, steemitUrl, loading } = this.state;
+    const { globalTags, totalComments, shuffledUsers, steemitUrl, loading } = this.state;
     return (
       <div className={classes.container}>
         <Grid container className={classes.grid}>
@@ -136,6 +165,7 @@ class SelectUrlStep extends React.Component {
               value={steemitUrl}
               onChange={event =>
                 this.setState({ steemitUrl: event.target.value })}
+              onKeyPress={(ev) => ev.key === 'Enter' ? this.handleClick(ev) : null}
               margin="normal"
             />
           </Grid>
@@ -155,11 +185,25 @@ class SelectUrlStep extends React.Component {
         </Grid>
 
         <div>
+          <p>
+            {globalTags && Object.keys(globalTags)
+              .sort((a, b) => globalTags[a] < globalTags[b])
+              .map(el => (
+                <span className={classes.tag}>{el + '(' + globalTags[el] + ')'} </span>
+              ))}
+          </p>
           <List>
+
             {shuffledUsers.map((user, index) =>
               <ListItem key={index.name} button>
-                <ListItemText primary={index + 1 + " - " + user.name } />
-                {user.voter ? '(voted)': ''}
+                {index + 1 + ' '}
+                {user.voter ? <MailIcon /> : <MailIcon style={{ color: 'rgb(210,210,210)' }} />}
+
+                {user.name}
+
+                {user.tags.map(tag => (
+                  <span className={classes.tag} key={tag}>{tag}</span>
+                ))}
               </ListItem>
             )}
           </List>
