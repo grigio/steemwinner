@@ -187,7 +187,7 @@ class SelectUrlStep extends React.Component {
         <div>
           <p>
             {globalTags && Object.keys(globalTags)
-              .sort((a, b) => globalTags[a] < globalTags[b])
+              .sort((a, b) => globalTags[b] - globalTags[a])
               .map(el => (
                 <span className={classes.tag}>{el + '(' + globalTags[el] + ')'} </span>
               ))}
