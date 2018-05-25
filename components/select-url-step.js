@@ -1,21 +1,23 @@
 import React from "react";
-import Input from "material-ui/Input";
-import InputLabel from "material-ui/Input/InputLabel";
-import Button from "material-ui/Button";
-import FormControl from "material-ui/Form/FormControl";
-import TextField from "material-ui/TextField";
-import CircularProgress from "material-ui/Progress";
-import Autorenew from "material-ui-icons/Autorenew";
-import Grid from "material-ui/Grid";
-import List, { ListItem, ListItemText } from "material-ui/List";
-import MailIcon from 'material-ui-icons/Mail';
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import Button from "@material-ui/core/Button";
+import FormControl from "@material-ui/core/FormControl";
+import TextField from "@material-ui/core/TextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Autorenew from "@material-ui/icons/Autorenew";
+import Grid from "@material-ui/core/Grid";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import MailIcon from '@material-ui/icons/Mail';
 
 import PropTypes from "prop-types";
-import { withStyles, createStyleSheet } from "material-ui/styles";
+import { withStyles, createMuiTheme } from "@material-ui/core/styles";
 
 import steem from "steem";
 
-const styleSheet = createStyleSheet("TextFields", theme => ({
+const styleSheet = createMuiTheme("TextFields", theme => ({
   container: {
     display: "flex",
     flexWrap: "wrap"
@@ -43,9 +45,20 @@ const styleSheet = createStyleSheet("TextFields", theme => ({
   }
 }));
 
+
+// const theme = createMuiTheme({
+//   props: {
+//     // Name of the component ⚛️
+//     MuiButtonBase: {
+//       // The properties to apply
+//       disableRipple: true, // No more ripple, on the whole application 💣!
+//     },
+//   },
+// });
+
 // recursive return all the comments
 function getData(root, items) {
-  steem.api.getContentReplies(root.author, root.permlink).then(results => {
+  steem.api.getContentReplies(root.author, root.permlink, (err, results) => {
     results.map(el => {
       items.push({
         author: el.author,
@@ -59,7 +72,7 @@ function getData(root, items) {
         // leaf
       }
     });
-  });
+  })
 }
 
 // return root {author, permLink}
@@ -78,7 +91,7 @@ class SelectUrlStep extends React.Component {
     // steemitUrl:
     //   'https://steemit.com/stats/@slorunner/global-stats-7-8-aug-global-hashtag-comment-and-post-rankings',
     steemitUrl:
-    "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
+      "https://steemit.com/italiano/@luigi-tecnologo/announcement-steemwinner-the-easiest-way-to-pick-up-your-contest-or-giveaway-winners",
     loading: false,
     totalComments: null,
     shuffledUsers: []
@@ -86,6 +99,7 @@ class SelectUrlStep extends React.Component {
 
   constructor(props) {
     super(props);
+    steem.api.setOptions({ url: 'https://api.steemit.com' });
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -96,9 +110,8 @@ class SelectUrlStep extends React.Component {
 
     const rootPost = getRoot(steemitUrl);
 
-    steem.api.getContent(rootPost.author, rootPost.permlink).then(post => {
+    steem.api.getContent(rootPost.author, rootPost.permlink, (err, post) => {
       const voters = post.active_votes.map(item => item.voter);
-      //console.log(voters)
 
       const comments = [];
       getData(rootPost, comments);
@@ -132,13 +145,11 @@ class SelectUrlStep extends React.Component {
           });
         });
 
-        // console.log("U ", uniqUsers, totalComments);
 
         // shuffle
         const shuffledUsers = uniqUsers.sort(() => Math.random() - 0.5);
 
-        // console.log('COMM1 ', JSON.stringify(comments))
-        console.log("C ", shuffledUsers, users);
+        // console.log("C ", shuffledUsers, users);
 
         this.setState({
           globalTags: globalTags,
@@ -147,7 +158,7 @@ class SelectUrlStep extends React.Component {
           loading: false
         });
       }, 5000); // timeout
-    });
+    })
   }
 
   render() {
@@ -171,7 +182,7 @@ class SelectUrlStep extends React.Component {
           </Grid>
           <Grid item sm={3}>
             <Button
-              raised
+              raised="true"
               disabled={loading || steemitUrl.length === 0}
               color="primary"
               className={classes.button}
@@ -185,7 +196,7 @@ class SelectUrlStep extends React.Component {
         </Grid>
 
         <div>
-          <p>
+        <p>
             {globalTags && Object.keys(globalTags)
               .sort((a, b) => globalTags[b] - globalTags[a])
               .map(el => (
@@ -195,7 +206,7 @@ class SelectUrlStep extends React.Component {
           <List>
 
             {shuffledUsers.map((user, index) =>
-              <ListItem key={index.name} button>
+              <ListItem key={index} button>
                 {index + 1 + ' '}
                 {user.voter ? <MailIcon /> : <MailIcon style={{ color: 'rgb(210,210,210)' }} />}
 
@@ -206,6 +217,7 @@ class SelectUrlStep extends React.Component {
                 ))}
               </ListItem>
             )}
+
           </List>
         </div>
       </div>

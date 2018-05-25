@@ -1,12 +1,12 @@
 import React from "react";
-import Grid from "material-ui/Grid";
-import Paper from "material-ui/Paper";
-import { withStyles, createStyleSheet } from "material-ui/styles";
-import Typography from "material-ui/Typography";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import { withStyles, createMuiTheme } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
 
 import SelectUrlStep from "./select-url-step";
 
-const styleSheet = createStyleSheet("GuttersGrid", theme => ({
+const styleSheet = createMuiTheme("GuttersGrid", theme => ({
   root: {
     flexGrow: 1,
     backgroundColor: "#1a5099",
@@ -32,7 +32,7 @@ class App extends React.Component {
           <Grid item xs={12} sm={10}>
             <Grid container justify="center" align="center" direction="column">
               <Typography type="display2" gutterBottom>
-                SteemWinner
+                SteemWinner is almost back
               </Typography>
               <img style={{marginBottom:'45px', width:'80%'}}
                 src="https://steemitimages.com/0x0/https://steemitimages.com/DQmSVzU4aQ9tB8gxwLyq4VaYFsywooPWJkeVqYkzoTsZHhK/steem-winner-promo.png" alt="SteemWinner" />              

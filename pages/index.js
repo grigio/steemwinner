@@ -1,10 +1,13 @@
 import Head from "next/head";
 import React from "react";
 import ReactDOM from "react-dom";
-import { MuiThemeProvider } from "material-ui/styles";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Root from "../components/App";
 // import Head from "next/head";
 // import 'typeface-roboto'
+
+const theme = createMuiTheme({
+})
 
 export default function App() {
   return (
@@ -15,14 +18,9 @@ export default function App() {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
         />
- <style>{`
-      body { 
-        font: 13px Roboto, sans-serif;
-      }
-    `}</style>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
         <Root />
       </MuiThemeProvider>
     </div>
